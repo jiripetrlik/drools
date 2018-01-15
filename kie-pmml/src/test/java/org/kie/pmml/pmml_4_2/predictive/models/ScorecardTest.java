@@ -20,25 +20,16 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
 
-import org.drools.core.definitions.InternalKnowledgePackage;
-import org.drools.core.definitions.rule.impl.RuleImpl;
+import org.assertj.core.api.Assertions;
 import org.drools.core.impl.InternalKnowledgeBase;
-import org.drools.core.impl.InternalRuleUnitExecutor;
-import org.drools.core.ruleunit.RuleUnitDescr;
-import org.drools.core.ruleunit.RuleUnitRegistry;
-import org.junit.After;
 import org.junit.Test;
 import org.kie.api.KieBase;
 import org.kie.api.io.Resource;
 import org.kie.api.io.ResourceType;
-import org.kie.api.logger.KieRuntimeLogger;
 import org.kie.api.runtime.rule.DataSource;
 import org.kie.api.runtime.rule.RuleUnit;
 import org.kie.api.runtime.rule.RuleUnitExecutor;
@@ -46,7 +37,8 @@ import org.kie.internal.io.ResourceFactory;
 import org.kie.internal.utils.KieHelper;
 import org.kie.pmml.pmml_4_2.DroolsAbstractPMMLTest;
 import org.kie.pmml.pmml_4_2.PMML4Result;
-import org.kie.pmml.pmml_4_2.model.PMML4UnitImpl;
+import org.kie.pmml.pmml_4_2.PMMLExecutor;
+import org.kie.pmml.pmml_4_2.PMMLKieBaseUtil;
 import org.kie.pmml.pmml_4_2.model.PMMLRequestData;
 import org.kie.pmml.pmml_4_2.model.datatypes.PMML4Data;
 
@@ -55,6 +47,8 @@ public class ScorecardTest extends DroolsAbstractPMMLTest {
 
     private static final String source1 = "org/kie/pmml/pmml_4_2/test_scorecard.pmml";
     private static final String source2 = "org/kie/pmml/pmml_4_2/test_scorecardOut.pmml";
+
+    private static final String SOURCE_SIMPLE_SCORECARD = "org/kie/pmml/pmml_4_2/test_scorecard_simple.pmml";
 
     @Test
     public void testMultipleInputData() throws Exception {
@@ -192,6 +186,32 @@ System.out.println(resultHolder);
         assertEquals( "CX2", iter.next() );
 
         
+    }
+
+    @Test
+    public void testSimpleScorecard() {
+
+        KieBase kieBase = PMMLKieBaseUtil.createKieBaseWithPMML(SOURCE_SIMPLE_SCORECARD);
+        PMMLExecutor executor = new PMMLExecutor(kieBase);
+
+        /* Evaluate first score card */
+        PMMLRequestData requestData = new PMMLRequestData("123", "SimpleScorecard");
+        requestData.addRequestParam("param1", 10.0);
+        requestData.addRequestParam("param2", 15.0);
+
+        PMML4Result resultHolder = executor.run(requestData);
+
+        Double score = resultHolder.getResultValue("ScoreCard", "score", Double.class).orElse(null);
+        Assertions.assertThat(score).isEqualTo(40.8);
+
+        /* Evaluate second score card */
+        requestData = new PMMLRequestData("123", "SimpleScorecard");
+        requestData.addRequestParam("param1", 51.0);
+        requestData.addRequestParam("param2", 12.0);
+
+        resultHolder = executor.run(requestData);
+        score = resultHolder.getResultValue("ScoreCard", "score", Double.class).orElse(null);
+        Assertions.assertThat(score).isEqualTo(120.8);
     }
 
     @Test
