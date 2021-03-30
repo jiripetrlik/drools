@@ -15,7 +15,16 @@
  */
 package org.kie.pmml.commons.utils;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 public class KiePMMLModelUtils {
+
+    public static final Logger LOG = LoggerFactory.getLogger(KiePMMLModelUtils.class);
+
+    static {
+        LOG.warn("Changes were applied");
+    }
 
     private KiePMMLModelUtils() {
     }
@@ -27,7 +36,10 @@ public class KiePMMLModelUtils {
      * @return
      */
     public static String getSanitizedPackageName(String modelName) {
-        return modelName.replaceAll("[^A-Za-z0-9]", "").toLowerCase();
+        LOG.warn("Running getSanitizedPackageName for original modelName: {}", modelName);
+        String newModelName = modelName.replaceAll("[^A-Za-z0-9]", "").toLowerCase();
+        LOG.warn("New model name is: {}", newModelName);
+        return newModelName;
     }
 
     /**
@@ -36,7 +48,10 @@ public class KiePMMLModelUtils {
      * @return
      */
     public static String getSanitizedClassName(String input) {
+        LOG.warn("Running getSanitizedClassName for original input: {}", input);
         String upperCasedInput = input.substring(0, 1).toUpperCase() + input.substring(1);
-        return upperCasedInput.replaceAll("[^A-Za-z0-9]", "");
+        upperCasedInput = upperCasedInput.replaceAll("[^A-Za-z0-9]", "");
+        LOG.warn("New input: {}", upperCasedInput);
+        return upperCasedInput;
     }
 }
