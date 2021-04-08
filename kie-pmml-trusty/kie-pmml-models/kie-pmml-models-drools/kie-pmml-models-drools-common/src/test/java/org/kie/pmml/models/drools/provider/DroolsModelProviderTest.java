@@ -152,7 +152,12 @@ public class DroolsModelProviderTest {
         PackageDescr packageDescr = knowledgeBuilder.getPackageDescrs(PACKAGE_NAME).get(0);
         commonVerifyPackageDescr(packageDescr, PACKAGE_NAME);
         assertNotNull(retrieved);
-        final String rootPath = PACKAGE_NAME + ".";
+        String rootPath;
+        if (System.getProperty("os.name").startsWith("Windows")) {
+            rootPath = PACKAGE_NAME + "/";
+        } else {
+            rootPath = PACKAGE_NAME + ".";
+        }
         commonVerifyRulesSourcesMap(retrievedWithSources.getRulesSourcesMap(), packageDescr, rootPath);
     }
 
@@ -215,7 +220,12 @@ public class DroolsModelProviderTest {
         PackageDescr packageDescr = knowledgeBuilder.getPackageDescrs(PACKAGE_NAME).get(0);
         final Map<String, String> retrieved = droolsModelProvider.getRulesSourceMap(packageDescr);
         assertNotNull(retrieved);
-        final String rootPath = PACKAGE_NAME + ".";
+        String rootPath;
+        if (System.getProperty("os.name").startsWith("Windows")) {
+            rootPath = PACKAGE_NAME + "/";
+        } else {
+            rootPath = PACKAGE_NAME + ".";
+        }
         commonVerifyRulesSourcesMap(retrieved, packageDescr, rootPath);
     }
 
